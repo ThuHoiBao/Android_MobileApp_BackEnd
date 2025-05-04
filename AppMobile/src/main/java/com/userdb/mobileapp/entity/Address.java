@@ -21,7 +21,7 @@ public class Address {
     private String province;
     private String district;
     private String city;
-    @OneToOne(mappedBy = "address")
-    private Customer customer;
+//    @OneToOne(mappedBy = "address")
+//    private Customer customer;
 }
 

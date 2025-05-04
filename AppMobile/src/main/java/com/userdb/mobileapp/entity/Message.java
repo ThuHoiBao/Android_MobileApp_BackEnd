@@ -18,10 +18,6 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int messageID;
 
-    @ManyToOne
-    @JoinColumn(name = "chatID", nullable = false) // Foreign key to Chat
-    private Chat chat;
-
     @Column(nullable = false)
     private int userID; // Reference to the sender's ID (either Admin or Customer)
 

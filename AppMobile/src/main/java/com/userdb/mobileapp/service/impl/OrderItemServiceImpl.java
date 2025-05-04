@@ -30,7 +30,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     OrderRepository orderRepository;
 
     public List<OrderItemResponseDTO> findAllByOrderCustomerId(int customerId) {
-        List<OrderItem> orderItems = orderItemRepository.findAllByOrderCustomerUserID(customerId);
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderUserId(customerId);
         orderItems.sort((o1, o2) -> o2.getOrder().getOrderDate().compareTo(o1.getOrder().getOrderDate()));
 
         Map<String, List<OrderItem>> groupedOrderItems = orderItems.stream()
@@ -63,7 +63,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public List<OrderItemResponseDTO> getOrderItemsByCustomerIdAndStatus(int customerId, String orderStatus) {
-        List<OrderItem> orderItems = orderItemRepository.findAllByOrderCustomerUserIDAndOrderOrderStatus(customerId,
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderUserIdAndOrderOrderStatus(customerId,
                 OrderStatus.valueOf(orderStatus));
 
         Map<String, List<OrderItem>> groupedOrderItems = orderItems.stream()

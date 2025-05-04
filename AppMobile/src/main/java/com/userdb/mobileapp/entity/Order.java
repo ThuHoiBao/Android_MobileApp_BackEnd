@@ -23,8 +23,8 @@ public class Order {
     private int orderId;
 
     @ManyToOne
-    @JoinColumn(name = "customerID", referencedColumnName = "userID")
-    private Customer customer;
+    @JoinColumn(name = "userID")
+    private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE)
     private List<OrderItem> orderItems;

@@ -50,9 +50,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageProduct> imageProducts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<PromotionProduct> promotionProducts;
-
     // Phương thức ánh xạ từ Product sang ProductDTO
 //    public ProductDTO toDTO() {
 //        return new ProductDTO(

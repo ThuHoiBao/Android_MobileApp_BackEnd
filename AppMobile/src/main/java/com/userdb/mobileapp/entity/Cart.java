@@ -19,8 +19,8 @@ public class Cart {
     private int cartID;
 
     @OneToOne
-    @JoinColumn(name = "customerID")
-    private Customer customer;
+    @JoinColumn(name = "userID")
+    private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.REMOVE)
     private List<CartItem> cardItems;

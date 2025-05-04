@@ -24,7 +24,6 @@ public class Payment {
     @JoinColumn(name = "order_id")
     private Order order;
 
-
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
     private double amount;
