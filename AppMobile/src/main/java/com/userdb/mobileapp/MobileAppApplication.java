@@ -10,5 +10,4 @@ public class MobileAppApplication {
     public static void main(String[] args) {
         SpringApplication.run(MobileAppApplication.class, args);
     }
-
 }
