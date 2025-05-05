@@ -1,6 +1,7 @@
 package com.userdb.mobileapp.filters;
 
 import com.userdb.mobileapp.component.JwtTokenUtil;
+import com.userdb.mobileapp.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -39,8 +39,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
                     return;
                 }
-                extractTokenFromRequest(request, response);  //Request require token
-                filterChain.doFilter(request, response); // Request no require token
+                boolean success = extractTokenFromRequest(request, response);
+                if (success) {
+                    filterChain.doFilter(request, response);
+                }
+
             } catch (Exception e){
                 System.out.println("Exception in JwtTokenFilter: " + e.getClass().getName() + " - " + e.getMessage());
                 e.printStackTrace();
@@ -69,7 +72,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/payments**", apiPrefix), "POST"),
                 Pair.of(String.format("%s/products.*", apiPrefix), "GET"),  // Kết quả: /api/products.*
                 //Danh nhap social
-                Pair.of(String.format("%s/users/login-social", apiPrefix), "POST")
+                Pair.of(String.format("%s/users/login-social", apiPrefix), "POST"),
+
+                Pair.of("/api/product/summary", "GET")
         );
 
 
@@ -94,7 +99,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 
     //Phương thức de lay token tu request (co the la tu header Authorization)
-    private void extractTokenFromRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean  extractTokenFromRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
  /*
            + Phương thức getHeader(String name) của đối tượng HttpServletRequest
@@ -112,24 +117,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
          */
             if(authHeader == null) {
                 System.out.println("Authorization header is missing.");
-                if (!response.isCommitted()) {
+                if (authHeader == null) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
+                    return false;
                 }
-                return;
             }
-            if(!authHeader.startsWith("Bearer ")) {
-                System.out.println("Authorization header does not start with Bearer.");
-                if (!response.isCommitted()) {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Authorization header format");
-                }
-                return;
+            if (!authHeader.startsWith("Bearer ")) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Authorization header format");
+                return false;
             }
+
+
             if(authHeader == null || !authHeader.startsWith("Bearer ")) {
                 if (!response.isCommitted()) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 }
-                return;
-            }
+                return false;
+                }
                 final String token = authHeader.substring(7);
                 final String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
                 if(phoneNumber != null &&  SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -148,13 +152,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         );
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                        return true;
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                        return false;
                     }
             }
         } catch (Exception ex){
             ex.printStackTrace();
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-            return;
+            return false;
         }
-
+        return false;
     }
 }
