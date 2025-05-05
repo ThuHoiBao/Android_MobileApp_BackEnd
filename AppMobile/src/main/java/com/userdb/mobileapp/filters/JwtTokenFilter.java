@@ -67,7 +67,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 Pair.of(String.format("%s/payments**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payments**", apiPrefix), "POST"),
-
+                Pair.of(String.format("%s/products.*", apiPrefix), "GET"),  // Kết quả: /api/products.*
                 //Danh nhap social
                 Pair.of(String.format("%s/users/login-social", apiPrefix), "POST")
         );
