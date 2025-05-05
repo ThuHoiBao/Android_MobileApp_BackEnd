@@ -1,9 +1,10 @@
 package com.userdb.mobileapp.repository;
 
 import com.userdb.mobileapp.entity.Product;
+import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -13,5 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     // Tìm tất cả điện thoại thuộc một danh mục cụ thể
     List<Product> findByCategoryCategoryID(int categoryID);
+
+    @Query("SELECT p FROM Product p WHERE p.productName = :productName")
+    List<Product> findAllByProductName(@Param("productName") String productName);
 
 }

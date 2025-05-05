@@ -50,7 +50,8 @@ public class WebSecurityConfig {
                                     String.format("%s/users/send-otp", apiPrefix),
                                     String.format("%s/users/update-password", apiPrefix),
                                     String.format("%s/payments/**", apiPrefix),
-                                    String.format("%s/users/login-social", apiPrefix)
+                                    String.format("%s/users/login-social", apiPrefix),
+                                    "/api/product/summary"
 
                             ).permitAll()
 

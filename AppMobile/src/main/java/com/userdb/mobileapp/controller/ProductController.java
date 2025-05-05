@@ -1,6 +1,7 @@
 package com.userdb.mobileapp.controller;
 
 import com.userdb.mobileapp.dto.responseDTO.ProductResponseDTO;
+import com.userdb.mobileapp.dto.responseDTO.ProductSummaryDTO;
 import com.userdb.mobileapp.service.ProductService;
 import com.userdb.mobileapp.service.impl.GoogleCloudStorageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,11 @@ public class ProductController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error uploading file");
         }
+    }
+
+    @GetMapping("/product/summary")
+    public ResponseEntity<ProductSummaryDTO> getProductSummary(@RequestParam String name) {
+        ProductSummaryDTO dto = productService.getProductSummary(name);
+        return ResponseEntity.ok(dto);
     }
 }
