@@ -104,4 +104,8 @@ public class User extends BaseEntity  implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AddressDelivery> addressDeliveries;
+
+
 }

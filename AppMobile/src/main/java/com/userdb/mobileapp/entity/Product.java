@@ -36,7 +36,7 @@ public class Product {
 //    private Review review;
 
     @OneToMany(mappedBy = "product") // tham chieu den "product" trong cardItem
-    private List<CartItem> orders;
+    private List<CartItem> cartItems;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;

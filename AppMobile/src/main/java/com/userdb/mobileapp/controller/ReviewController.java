@@ -1,6 +1,7 @@
 package com.userdb.mobileapp.controller;
 
 import com.userdb.mobileapp.dto.requestDTO.ReviewRequestDTO;
+import com.userdb.mobileapp.dto.responseDTO.ReviewDTO;
 import com.userdb.mobileapp.dto.responseDTO.ReviewResponseDTO;
 import com.userdb.mobileapp.entity.ImageReview;
 import com.userdb.mobileapp.entity.Review;
@@ -64,5 +65,11 @@ public class ReviewController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/review/productName")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByProductName(@RequestParam("productName") String productName){
+        List<ReviewDTO> reviews = reviewService.getReviewsByProductName(productName);
+        return ResponseEntity.ok(reviews);
     }
 }

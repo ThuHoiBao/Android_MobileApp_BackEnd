@@ -74,7 +74,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 //Danh nhap social
                 Pair.of(String.format("%s/users/login-social", apiPrefix), "POST"),
 
-                Pair.of("/api/product/summary", "GET")
+                Pair.of("/api/product/summary", "GET"),
+                Pair.of("/api/review/productName", "GET")
         );
 
 

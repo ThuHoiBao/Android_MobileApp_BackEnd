@@ -2,16 +2,14 @@ package com.userdb.mobileapp.service.impl;
 
 import com.userdb.mobileapp.convert.ReviewConvert;
 import com.userdb.mobileapp.dto.requestDTO.ReviewRequestDTO;
+import com.userdb.mobileapp.dto.responseDTO.ReviewDTO;
 import com.userdb.mobileapp.dto.responseDTO.ReviewResponseDTO;
 import com.userdb.mobileapp.entity.ImageReview;
 import com.userdb.mobileapp.entity.Order;
 import com.userdb.mobileapp.entity.OrderItem;
 import com.userdb.mobileapp.entity.Review;
 import com.userdb.mobileapp.enums.OrderStatus;
-import com.userdb.mobileapp.repository.ImageReviewRepository;
-import com.userdb.mobileapp.repository.OrderItemRepository;
-import com.userdb.mobileapp.repository.OrderRepository;
-import com.userdb.mobileapp.repository.ReviewRepository;
+import com.userdb.mobileapp.repository.*;
 import com.userdb.mobileapp.service.ReviewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +39,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private ImageReviewRepository imageReviewRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ReviewConvert reviewConvert;
@@ -130,5 +132,25 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewResponseDTO;
     }
 
-
+    @Override
+    public List<ReviewDTO> getReviewsByProductName(String productName) {
+        //Lay danh sach cac review dua tren productName
+        List<Review> reviews = reviewRepository.findReviewsByProductName(productName);
+        List<ReviewDTO> reviewDTOs = new ArrayList<>();
+        for(Review review : reviews){
+            String userName = review.getOrderItem().getOrder().getUser().getFullName();
+            List<String> imageReviews = review.getImageReviews().stream()
+                    .map(ImageReview::getImageReview)
+                    .collect(Collectors.toList());
+            // Tạo ReviewDTO và thêm vào danh sách
+            reviewDTOs.add(new ReviewDTO(
+                    userName,
+                    review.getDate(),
+                    review.getRatingValue(),
+                    review.getComment(),
+                    imageReviews
+            ));
+        }
+        return reviewDTOs;
+    }
 }

@@ -51,7 +51,8 @@ public class WebSecurityConfig {
                                     String.format("%s/users/update-password", apiPrefix),
                                     String.format("%s/payments/**", apiPrefix),
                                     String.format("%s/users/login-social", apiPrefix),
-                                    "/api/product/summary"
+                                    "/api/product/summary",
+                                    "api/review/productName"
 
                             ).permitAll()
 
