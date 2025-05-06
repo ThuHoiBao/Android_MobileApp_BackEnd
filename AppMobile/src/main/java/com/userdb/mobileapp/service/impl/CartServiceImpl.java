@@ -1,10 +1,9 @@
 package com.userdb.mobileapp.service.impl;
 
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
+import com.userdb.mobileapp.dto.requestDTO.AddressDeliveryDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
-import com.userdb.mobileapp.entity.Cart;
-import com.userdb.mobileapp.entity.CartItem;
-import com.userdb.mobileapp.entity.Product;
+import com.userdb.mobileapp.entity.*;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.CartItemRepository;
 import com.userdb.mobileapp.repository.CartRepository;
@@ -32,7 +31,6 @@ public class CartServiceImpl implements ICart {
                 .findTopByProductNameAndColor(request.getProductName(), request.getColor())
                 .orElseThrow(() -> new DataNotFoundException("Product is not found"));
 
-        // Lấy giỏ hàng của người dùng hoặc tạo mới nếu không có
         Cart cart = cartRepository.findByUser_Id(userId)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -40,7 +38,6 @@ public class CartServiceImpl implements ICart {
                     return cartRepository.save(newCart);
                 });
 
-        // Kiểm tra xem đã có sản phẩm này trong giỏ hàng chưa (so sánh theo productName và color)
         CartItem existingItem = cart.getCardItems().stream()
                 .filter(item -> item.getProduct().getProductName().equals(product.getProductName()) &&
                         item.getProduct().getColor().equals(product.getColor()))
@@ -48,11 +45,9 @@ public class CartServiceImpl implements ICart {
                 .orElse(null);
 
         if (existingItem != null) {
-            // Nếu có rồi thì tăng số lượng
             existingItem.setQuantity(existingItem.getQuantity() + request.getQuantity());
             cartItemRepository.save(existingItem);
         } else {
-            // Nếu chưa có thì thêm mới
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProduct(product);
@@ -60,13 +55,12 @@ public class CartServiceImpl implements ICart {
             cartItemRepository.save(newItem);
         }
 
-        return cart; // Trả về giỏ hàng đã được cập nhật
+        return cart;
     }
 
     @Override
     public List<CartItem> updateProductInCart(List<CartItemUpdateRequestDTO> updates, long userId) throws DataNotFoundException {
             List<CartItem> cartItemList = new ArrayList<>();
-        // Lấy giỏ hàng của người dùng
         Cart cart = cartRepository.findByUser_Id(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cart not found"));
         for (CartItemUpdateRequestDTO update : updates) {
@@ -88,7 +82,6 @@ public class CartServiceImpl implements ICart {
                     cartItemRepository.save(existingItem);
                 }
                 } else {
-                // Nếu sản phẩm không có trong giỏ hàng, throw exception hoặc có thể thêm mới sản phẩm vào giỏ
                 throw new DataNotFoundException("Product is not found in the cart");
             }
         }

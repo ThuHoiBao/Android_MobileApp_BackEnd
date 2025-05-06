@@ -34,7 +34,9 @@ public class Order {
     private Payment payment;
 
 
-    private String shippingAddress;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_delivery_id", referencedColumnName = "id")
+    private AddressDelivery addressDelivery;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
