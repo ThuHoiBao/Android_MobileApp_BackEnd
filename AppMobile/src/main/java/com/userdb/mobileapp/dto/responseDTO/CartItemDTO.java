@@ -15,4 +15,5 @@ public class CartItemDTO {
     private double price;
     private int quantity;
     private String productImage;
+    private boolean outOfStockItems;
 }

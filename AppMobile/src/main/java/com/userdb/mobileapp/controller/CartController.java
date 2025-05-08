@@ -55,15 +55,19 @@ public class CartController {
     }
 
     @GetMapping("/items")
-    public List<CartItemDTO> getCartItems( @RequestParam long userId) throws DataNotFoundException {
+    public ResponseEntity<?> getCartItems( @RequestParam long userId) throws DataNotFoundException {
         // Xử lý token (có thể sử dụng JWT để xác thực)
 //        String token = authHeader.replace("Bearer ", "");
 //        System.out.println("Received token: " + token);  // In ra token để kiểm tra
 //        System.out.println("Received userId: " + userId);  // In ra userId để kiểm tra
 
         // Lấy dữ liệu giỏ hàng từ service
-        List<CartItemDTO> cartItems = cartService.getCartItemsByUserId(userId);
-        return cartItems;
+        try {
+            List<CartItemDTO> cartItems = cartService.getCartItemsByUserId(userId);
+            return ResponseEntity.ok(cartItems);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/item")
@@ -76,13 +80,13 @@ public class CartController {
         }
     }
 
-    @PostMapping("/update-cart")
-    public ResponseEntity<?> updateCart( @RequestParam Long userId) throws DataNotFoundException {
-        try {
-            List<CartItemOutOfStock> list = cartService.updateCartItem(userId);
-            return ResponseEntity.ok(list);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+//    @PostMapping("/update-cart")
+//    public ResponseEntity<?> updateCart( @RequestParam Long userId) throws DataNotFoundException {
+//        try {
+//            List<CartItemDTO> list = cartService.updateCartItem(userId);
+//            return ResponseEntity.ok(list);
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+//        }
+//    }
 }
