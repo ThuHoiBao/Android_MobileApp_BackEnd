@@ -1,8 +1,9 @@
 package com.userdb.mobileapp.service.impl;
 
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
-import com.userdb.mobileapp.dto.requestDTO.AddressDeliveryDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
+import com.userdb.mobileapp.dto.responseDTO.CartItemDTO;
+import com.userdb.mobileapp.dto.responseDTO.CartItemOutOfStock;
 import com.userdb.mobileapp.entity.*;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.CartItemRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,5 +88,72 @@ public class CartServiceImpl implements ICart {
             }
         }
         return cartItemList;
+    }
+
+    @Override
+    public List<CartItemDTO> getCartItemsByUserId(long userId) throws DataNotFoundException {
+        // Lấy Cart của người dùng từ userId
+        Cart cart = cartRepository.findByUser_Id(userId).orElseThrow(() -> new DataNotFoundException("Cart is not found by user Id: " + userId));
+
+        if (cart == null) {
+            return null;  // Nếu không có cart, trả về null
+        }
+
+        // Lấy tất cả CartItem của người dùng
+        List<CartItem> cartItems = cart.getCardItems();
+
+        // Chuyển đổi CartItem thành CartItemDTO
+        return cartItems.stream().map(cartItem -> {
+            Product product = cartItem.getProduct();
+            String productImage = product.getImageProducts().isEmpty() ? null : product.getImageProducts().get(0).getImageProduct();
+
+            return new CartItemDTO(
+                    cartItem.getCartItemId(),
+                    product.getProductName(),
+                    product.getColor(),
+                    product.getPrice(),
+                    cartItem.getQuantity(),
+                    productImage
+            );
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeCartItem(long userId, int cartItemId) throws DataNotFoundException {
+        CartItem cartItem = cartItemRepository.findByCartItemIdAndCart_User_Id(cartItemId, userId)
+                .orElseThrow(() -> new DataNotFoundException("Cart item not found or does not belong to user"));
+
+        cartItemRepository.delete(cartItem);
+    }
+
+    @Override
+    public List<CartItemOutOfStock> updateCartItem(Long userId) throws DataNotFoundException {
+        // Bước 1: Lấy tất cả các CartItem của người dùng
+        List<CartItem> cartItems = cartItemRepository.findByCart_User_Id(userId);
+        List<CartItemOutOfStock> outOfStockItems = new ArrayList<>();
+
+        // Bước 2: Đếm số lượng sản phẩm trong giỏ hàng dựa trên productName và color
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct(); // Lấy sản phẩm từ CartItem
+            if (product != null) { // Kiểm tra nếu sản phẩm còn tồn tại và còn kích hoạt
+                // Tìm tất cả các sản phẩm có productName và color trong bảng Product giong nhau va status = true
+                List<Product> productsWithSameNameAndColor = productRepository.findByProductNameAndColorAndStatusTrue(
+                        product.getProductName(), product.getColor());
+
+                int countMap = productsWithSameNameAndColor.size();
+                System.out.println(countMap);
+
+                // Bước 3: Lấy thông tin CartItem từ id và cập nhật số lượng trong giỏ hàng nếu cần
+                if(countMap == 0){
+                    outOfStockItems.add(new CartItemOutOfStock(cartItem.getCartItemId(), true));
+                }
+                else if (countMap > 0 && cartItem.getQuantity() > countMap) {
+                    cartItem.setQuantity(countMap);  // Cập nhật số lượng mới
+                    cartItemRepository.save(cartItem);  // Lưu lại thay đổi
+                    outOfStockItems.add(new CartItemOutOfStock(cartItem.getCartItemId(), false));
+                }
+            }
+        }
+        return outOfStockItems;
     }
 }

@@ -2,12 +2,9 @@ package com.userdb.mobileapp.controller;
 
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
-import com.userdb.mobileapp.dto.responseDTO.CartItemResponseDTO;
-import com.userdb.mobileapp.dto.responseDTO.CartResponseDTO;
-import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
+import com.userdb.mobileapp.dto.responseDTO.*;
 import com.userdb.mobileapp.entity.Cart;
 import com.userdb.mobileapp.entity.CartItem;
-import com.userdb.mobileapp.entity.User;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.service.impl.CartServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -39,27 +37,52 @@ public class CartController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ResponseObject> updateCartItems(
+    public ResponseEntity<List<CartItemUpdateResponseDTO>> updateCartItems(
             @RequestParam("userId") long userId,
-            @RequestBody List<CartItemUpdateRequestDTO> updates) {
-        User user = new User();
-        user.setId(userId);
-        // Call the service to update multiple CartItems
-        try {
-            List<CartItem> cartItemList = cartService.updateProductInCart(updates, userId);
+            @RequestBody List<CartItemUpdateRequestDTO> updates) throws DataNotFoundException {
 
-            // Chỉnh sửa: Gọi đúng phương thức `fromCart()`
-            return ResponseEntity.ok().body(ResponseObject.builder()
-                    .status(HttpStatus.OK)
-                    .data(CartItemResponseDTO.fromCart(updates, userId))  // Đảm bảo gọi đúng phương thức `fromCart()`
-                    .message("Update Cart Successfully!")
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseObject.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .data(null)
-                    .message(e.getMessage())
-                    .build());
+        List<CartItem> cartItemList = cartService.updateProductInCart(updates, userId);
+
+        // Map request DTOs to response DTOs (assuming updated values are same as request)
+        List<CartItemUpdateResponseDTO> responseDTOs = updates.stream()
+                .map(req -> new CartItemUpdateResponseDTO(
+                        req.getProductName(),
+                        req.getColor(),
+                        req.getNewQuantity()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDTOs);
+    }
+
+    @GetMapping("/items")
+    public List<CartItemDTO> getCartItems( @RequestParam long userId) throws DataNotFoundException {
+        // Xử lý token (có thể sử dụng JWT để xác thực)
+//        String token = authHeader.replace("Bearer ", "");
+//        System.out.println("Received token: " + token);  // In ra token để kiểm tra
+//        System.out.println("Received userId: " + userId);  // In ra userId để kiểm tra
+
+        // Lấy dữ liệu giỏ hàng từ service
+        List<CartItemDTO> cartItems = cartService.getCartItemsByUserId(userId);
+        return cartItems;
+    }
+
+    @DeleteMapping("/item")
+    public ResponseEntity<String> removeCartItem(@RequestParam long userId, @RequestParam int cartItemId) {
+        try {
+            cartService.removeCartItem(userId, cartItemId);
+            return ResponseEntity.ok("Cart item deleted successfully");
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/update-cart")
+    public ResponseEntity<?> updateCart( @RequestParam Long userId) throws DataNotFoundException {
+        try {
+            List<CartItemOutOfStock> list = cartService.updateCartItem(userId);
+            return ResponseEntity.ok(list);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

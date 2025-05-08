@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressDeliveryDTO {
+    @JsonProperty("id")
+    private Long id;
     @JsonProperty("full_name")
     private String fullName;
     @JsonProperty("phone_number")

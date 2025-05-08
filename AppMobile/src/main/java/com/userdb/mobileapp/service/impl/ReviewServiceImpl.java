@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -139,13 +141,16 @@ public class ReviewServiceImpl implements ReviewService {
         List<ReviewDTO> reviewDTOs = new ArrayList<>();
         for(Review review : reviews){
             String userName = review.getOrderItem().getOrder().getUser().getFullName();
+            LocalDate reviewDate = review.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            // Chuyển đổi LocalDate thành chuỗi với định dạng yyyy-MM-dd
+            String formattedDate = reviewDate.toString(); // "yyyy-MM-dd"
             List<String> imageReviews = review.getImageReviews().stream()
                     .map(ImageReview::getImageReview)
                     .collect(Collectors.toList());
             // Tạo ReviewDTO và thêm vào danh sách
             reviewDTOs.add(new ReviewDTO(
                     userName,
-                    review.getDate(),
+                    formattedDate,
                     review.getRatingValue(),
                     review.getComment(),
                     imageReviews
