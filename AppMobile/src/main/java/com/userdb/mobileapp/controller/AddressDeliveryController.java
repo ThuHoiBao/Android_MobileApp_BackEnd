@@ -5,11 +5,14 @@ import com.userdb.mobileapp.dto.requestDTO.AddressDeliveryDTO;
 import com.userdb.mobileapp.dto.responseDTO.AddressDeliveryResponseDTO;
 import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
 import com.userdb.mobileapp.entity.AddressDelivery;
+import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.service.impl.AddressDeliveryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/address")
@@ -17,20 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class AddressDeliveryController {
     private final AddressDeliveryServiceImpl addressDeliveryService;
 
-    @PostMapping
-    public ResponseEntity<ResponseObject> createAddress(@RequestBody AddressDeliveryDTO dto) {
-        try {
-            AddressDelivery savedAddress = addressDeliveryService.addAddress(dto);
-            return ResponseEntity.ok().body(ResponseObject.builder().status(HttpStatus.OK)
-                    .data(AddressDeliveryResponseDTO.fromAddressDelivery(savedAddress))
-                    .message("Add Address Delivery Successfully!")
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseObject.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .data(null).message(e.getMessage())
-                    .build());
-        }
+    @PostMapping("add")
+    public AddressDeliveryResponseDTO createAddress(@RequestBody AddressDeliveryDTO dto) {
+        System.out.println(dto.toString());
+        AddressDelivery savedAddress = addressDeliveryService.addAddress(dto);
+        return AddressDeliveryResponseDTO.fromAddressDelivery(savedAddress);
     }
 
     @PutMapping("/update/default")
@@ -75,6 +69,30 @@ public class AddressDeliveryController {
         return ResponseEntity.ok("Address updated successfully and default address set.");
     }
 
+    @GetMapping("/default")
+    public ResponseEntity<AddressDeliveryResponseDTO> getDefaultAddress(@RequestParam("userId") long userId) throws DataNotFoundException {
+        AddressDeliveryResponseDTO defaultAddress = addressDeliveryService.getDefaultAddressByUserId(userId);
+        return ResponseEntity.ok(defaultAddress);
+    }
+
+    @GetMapping("items")
+    public ResponseEntity<List<AddressDeliveryResponseDTO>> getAllAddressDelivery(@RequestParam("userId") long userId){
+        List<AddressDeliveryResponseDTO> listItems = addressDeliveryService.getAllAddressDelivery(userId);
+        return ResponseEntity.ok(listItems);
+    }
 
 
+
+    @PutMapping("/setDefault")
+    public ResponseEntity<String> setDefaultAddress(
+            @RequestParam("userId") long userId,
+            @RequestParam("addressId") long addressId) {
+
+        boolean result = addressDeliveryService.updateDefaultAddress(userId, addressId);
+        if (result) {
+            return ResponseEntity.ok("Address updated successfully.");
+        } else {
+            return ResponseEntity.status(400).body("Error updating address.");
+        }
+    }
 }

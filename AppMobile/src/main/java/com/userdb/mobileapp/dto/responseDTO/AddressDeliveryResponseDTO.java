@@ -1,34 +1,32 @@
-package com.userdb.mobileapp.dto.responseDTO;
+    package com.userdb.mobileapp.dto.responseDTO;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.userdb.mobileapp.entity.AddressDelivery;
-import com.userdb.mobileapp.entity.User;
-import lombok.*;
+    import com.userdb.mobileapp.entity.AddressDelivery;
+    import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class AddressDeliveryResponseDTO {
-    @JsonProperty("full_name")
-    private String fullName;
-    @JsonProperty("phone_number")
-    private String phoneNumber;
-    @JsonProperty("address")
-    private String address;
-    @JsonProperty("is_default")
-    private Boolean isDefault;
-    @JsonProperty("user_id")
-    private Long userId;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public class AddressDeliveryResponseDTO {
+        //address, full_name, phone_number, is_default, user_id, status
+        private Long id;
+        private String fullName;
+        private String phoneNumber;
+        private String address;
+        private Boolean isDefault;
+        private Long userId;
+        private Boolean status;
 
-    public static AddressDeliveryResponseDTO fromAddressDelivery(AddressDelivery addressDelivery) {
-        return AddressDeliveryResponseDTO.builder()
-                .fullName(addressDelivery.getFullName())
-                .phoneNumber(addressDelivery.getPhoneNumber())
-                .address(addressDelivery.getAddress())
-                .isDefault(addressDelivery.getIsDefault())
-                .userId(addressDelivery.getUser().getId())
-                .build();
+        public static AddressDeliveryResponseDTO fromAddressDelivery(AddressDelivery addressDelivery) {
+            return AddressDeliveryResponseDTO.builder()
+                    .id(addressDelivery.getId())
+                    .fullName(addressDelivery.getFullName())
+                    .phoneNumber(addressDelivery.getPhoneNumber())
+                    .address(addressDelivery.getAddress())
+                    .isDefault(addressDelivery.getIsDefault())
+                    .userId(addressDelivery.getUser().getId())
+                    .status(addressDelivery.getStatus())
+                    .build();
+        }
     }
-}

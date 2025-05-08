@@ -1,8 +1,10 @@
 package com.userdb.mobileapp.service.impl;
 
 import com.userdb.mobileapp.dto.requestDTO.AddressDeliveryDTO;
+import com.userdb.mobileapp.dto.responseDTO.AddressDeliveryResponseDTO;
 import com.userdb.mobileapp.entity.AddressDelivery;
 import com.userdb.mobileapp.entity.User;
+import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.AddressDeliveryRepository;
 import com.userdb.mobileapp.repository.UserRepository;
 import com.userdb.mobileapp.service.IAddressDeliveryService;
@@ -37,7 +39,6 @@ public class AddressDeliveryServiceImpl implements IAddressDeliveryService {
                 .user(user)
                 .status(true)
                 .build();
-
         return addressDeliveryRepository.save(address);
     }
 
@@ -102,11 +103,36 @@ public class AddressDeliveryServiceImpl implements IAddressDeliveryService {
         addressDeliveryRepository.save(address);
 
         AddressDelivery defaultAddress = addressDeliveryRepository
-                .findTopByUserIdAndStatusTrueOrderByIdAsc(userId)
+                .findById(address.getId())
                 .orElseThrow(() -> new RuntimeException("No available addresses to set as default"));
 
-        defaultAddress.setIsDefault(true);
+        defaultAddress.setIsDefault(false);
         addressDeliveryRepository.save(defaultAddress);
     }
 
+    @Override
+    public AddressDeliveryResponseDTO getDefaultAddressByUserId(Long userId) throws DataNotFoundException {
+        return addressDeliveryRepository.findByUser_IdAndIsDefaultTrueAndStatusTrue(userId).orElseThrow(() -> new DataNotFoundException("Address Delivery is not found"));
+
+    }
+
+    @Override
+    public List<AddressDeliveryResponseDTO> getAllAddressDelivery(long userId) {
+        return addressDeliveryRepository.findByUser_Id(userId);
+    }
+
+    @Override
+    public boolean updateDefaultAddress(long userId, long addressId) {
+        try {
+            // Đặt tất cả địa chỉ của người dùng thành false
+            addressDeliveryRepository.updateIsDefaultForUser(userId);
+
+            // Đặt địa chỉ cụ thể là true
+            addressDeliveryRepository.updateIsDefault(addressId, true);
+            return true; // Nếu thành công
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // Nếu có lỗi xảy ra
+        }
+    }
 }

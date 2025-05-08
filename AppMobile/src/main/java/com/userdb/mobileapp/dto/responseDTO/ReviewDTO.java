@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewDTO {
     private String userName;
-    private Date reviewDate;
+    private String reviewDate;
     private int ratingValue;
     private String comment;
     private List<String> imageReviews;

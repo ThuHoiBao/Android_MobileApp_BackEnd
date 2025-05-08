@@ -1,8 +1,8 @@
 package com.userdb.mobileapp.service.impl;
 
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
-import com.userdb.mobileapp.dto.requestDTO.AddressDeliveryDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
+import com.userdb.mobileapp.dto.responseDTO.CartItemDTO;
 import com.userdb.mobileapp.entity.*;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.CartItemRepository;
@@ -86,5 +86,47 @@ public class CartServiceImpl implements ICart {
             }
         }
         return cartItemList;
+    }
+
+    @Override
+    public List<CartItemDTO> getCartItemsByUserId(long userId) throws DataNotFoundException {
+        // Bước 1: Lấy tất cả các CartItem của người dùng
+        List<CartItem> cartItems = cartItemRepository.findByCart_User_Id(userId);
+        List<CartItemDTO> outOfStockItems = new ArrayList<>();
+
+        // Bước 2: Đếm số lượng sản phẩm trong giỏ hàng dựa trên productName và color
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct(); // Lấy sản phẩm từ CartItem
+            if (product != null) { // Kiểm tra nếu sản phẩm còn tồn tại và còn kích hoạt
+                // Tìm tất cả các sản phẩm có productName và color trong bảng Product giong nhau va status = true
+                List<Product> productsWithSameNameAndColor = productRepository.findByProductNameAndColorAndStatusTrue(
+                        product.getProductName(), product.getColor());
+
+                int countMap = productsWithSameNameAndColor.size();
+                System.out.println(countMap);
+
+                // Bước 3: Lấy thông tin CartItem từ id và cập nhật số lượng trong giỏ hàng nếu cần
+                String productImage = product.getImageProducts().isEmpty() ? null : product.getImageProducts().get(0).getImageProduct();
+                if(countMap == 0){ // truong hop het hang
+                    outOfStockItems.add(new CartItemDTO(cartItem.getCartItemId(), product.getProductName(), product.getColor(), product.getPrice(), cartItem.getQuantity(), productImage, true));
+                }
+                else if (cartItem.getQuantity() > countMap) { // truong hop so luong stock nho hon so luong quantity
+                    cartItem.setQuantity(countMap);  // Cập nhật số lượng mới
+                    cartItemRepository.save(cartItem);  // Lưu lại thay đổi
+                    outOfStockItems.add(new CartItemDTO(cartItem.getCartItemId(), product.getProductName(), product.getColor(), product.getPrice(), cartItem.getQuantity(), productImage, false));
+                } else { // truong hop con hang
+                    outOfStockItems.add(new CartItemDTO(cartItem.getCartItemId(), product.getProductName(), product.getColor(), product.getPrice(), cartItem.getQuantity(), productImage, false));
+                }
+            }
+        }
+        return outOfStockItems;
+    }
+
+    @Override
+    public void removeCartItem(long userId, int cartItemId) throws DataNotFoundException {
+        CartItem cartItem = cartItemRepository.findByCartItemIdAndCart_User_Id(cartItemId, userId)
+                .orElseThrow(() -> new DataNotFoundException("Cart item not found or does not belong to user"));
+
+        cartItemRepository.delete(cartItem);
     }
 }
