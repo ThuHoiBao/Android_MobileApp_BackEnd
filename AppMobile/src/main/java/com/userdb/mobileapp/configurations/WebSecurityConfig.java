@@ -52,10 +52,25 @@ public class WebSecurityConfig {
                                     String.format("%s/payments/**", apiPrefix),
                                     String.format("%s/users/login-social", apiPrefix),
                                     "/api/product/summary",
+
                                     "/api/products/**",
                                     "/api/orders/**",
                                     "/api/reviews/**",
-                                    "/api/review/**"
+                                    "/api/review/**",
+
+
+                                    "api/review/productName",
+                                    "/api/cart/items",
+                                    "/api/cart/update",
+                                    "/api/cart/add",
+                                    "/api/address/default",
+                                    "/api/address/delete" ,
+                                    "/api/cart/item",
+                                    "/api/address/items",
+                                    "/api/address/update",
+                                    "/api/address/setDefault",
+                                    "/api/address/add",
+                                    "/api/cart/update-cart"
 
                             ).permitAll()
 

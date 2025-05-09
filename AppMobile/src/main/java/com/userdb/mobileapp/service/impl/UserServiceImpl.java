@@ -6,6 +6,7 @@ import com.userdb.mobileapp.component.LocalizationUtils;
 import com.userdb.mobileapp.dto.requestDTO.SocialLoginDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserUpdatePasswordDTO;
+import com.userdb.mobileapp.entity.Cart;
 import com.userdb.mobileapp.entity.Role;
 import com.userdb.mobileapp.entity.Token;
 import com.userdb.mobileapp.entity.User;
@@ -13,6 +14,7 @@ import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.exception.ExpiredTokenException;
 import com.userdb.mobileapp.exception.InvalidParamException;
 import com.userdb.mobileapp.exception.PermissionDenyException;
+import com.userdb.mobileapp.repository.CartRepository;
 import com.userdb.mobileapp.repository.RoleRepository;
 import com.userdb.mobileapp.repository.TokenRepository;
 import com.userdb.mobileapp.repository.UserRepository;
@@ -47,6 +49,7 @@ public class UserServiceImpl implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final LocalizationUtils localizationUtils;
+    private final CartRepository cartRepository;
 
     @Value("${spring.security.oauth2.client.registration.google.client_id}")
     private String googleClientId;
@@ -88,15 +91,17 @@ public class UserServiceImpl implements IUserService {
                 .build();
         newUser.setRole(role);
 
-        String password = userDTO.getPassword();
-        String encodedPassword = passwordEncoder.encode(password);
-        System.out.println(encodedPassword);
-        newUser.setPassword(encodedPassword);
-        //Kiem tra neu co accountId, khong yeu cau password
         if(userDTO.getFacebookAccountId().isEmpty() && userDTO.getGoogleAccountId().isEmpty()) {
-
+            String password = userDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(password);
+            newUser.setPassword(encodedPassword);
         }
-        return userRepository.save(newUser);
+
+        User saveUser = userRepository.save(newUser);
+        Cart newCart = new Cart();
+        newCart.setUser(saveUser);
+        cartRepository.save(newCart);
+        return saveUser;
     }
 
     //Login
