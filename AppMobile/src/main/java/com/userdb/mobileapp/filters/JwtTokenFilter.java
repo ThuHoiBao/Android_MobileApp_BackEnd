@@ -70,11 +70,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 Pair.of(String.format("%s/payments**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payments**", apiPrefix), "POST"),
-                Pair.of(String.format("%s/products.*", apiPrefix), "GET"),  // Kết quả: /api/products.*
+                Pair.of("/api/products" , "GET"),
+                Pair.of("/api/orders/\\d+", "GET") , // nếu customerId là số
+                // Kết quả: /api/products.*
                 //Danh nhap social
                 Pair.of(String.format("%s/users/login-social", apiPrefix), "POST"),
 
-                Pair.of("/api/product/summary", "GET")
+                Pair.of("/api/product/summary", "GET"),
+                Pair.of("/api/orders/\\d+/[a-zA-Z]+", "GET"), // NEW
+                Pair.of("/api/reviews/\\d+", "GET"),
+                Pair.of("/api/review/\\d+", "GET"),
+                Pair.of("/api/review", "POST")
         );
 
 
