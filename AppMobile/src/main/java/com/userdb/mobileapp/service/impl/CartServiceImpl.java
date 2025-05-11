@@ -3,6 +3,7 @@ package com.userdb.mobileapp.service.impl;
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
 import com.userdb.mobileapp.dto.responseDTO.CartItemDTO;
+import com.userdb.mobileapp.dto.responseDTO.CartItemResponseDTO;
 import com.userdb.mobileapp.entity.*;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.CartItemRepository;
@@ -56,6 +57,20 @@ public class CartServiceImpl implements ICart {
         }
 
         return cart;
+    }
+
+
+    @Override
+     public CartItem updateProductCartItem(int cartItemId, CartItemUpdateRequestDTO updates, long userId) throws DataNotFoundException {
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() -> new DataNotFoundException("CartItem is not found"));
+        int qtyCartItem = cartItem.getQuantity(); // get Quantity in cartItem
+        List<Product> productsWithSameNameAndColor = productRepository.findByProductNameAndColorAndStatusTrue(
+                updates.getProductName(), updates.getColor());
+
+        int count = productsWithSameNameAndColor.size();
+
+        return null;
+
     }
 
     @Override

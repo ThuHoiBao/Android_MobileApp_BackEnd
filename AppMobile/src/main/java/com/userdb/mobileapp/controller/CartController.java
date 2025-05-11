@@ -79,14 +79,4 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
-//    @PostMapping("/update-cart")
-//    public ResponseEntity<?> updateCart( @RequestParam Long userId) throws DataNotFoundException {
-//        try {
-//            List<CartItemDTO> list = cartService.updateCartItem(userId);
-//            return ResponseEntity.ok(list);
-//        }catch (Exception e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//    }
 }

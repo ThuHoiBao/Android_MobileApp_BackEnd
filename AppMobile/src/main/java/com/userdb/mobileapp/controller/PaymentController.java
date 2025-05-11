@@ -5,6 +5,7 @@ import com.userdb.mobileapp.dto.payment.PaymentQueryDTO;
 import com.userdb.mobileapp.dto.payment.PaymentRefundDTO;
 import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
 import com.userdb.mobileapp.service.impl.VNPayServiceImpl;
+import feign.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,22 +27,12 @@ public class PaymentController {
     private final VNPayServiceImpl vnPayService;
 
     @PostMapping("/create_payment_url")
-    public ResponseEntity<ResponseObject> createPayment(@RequestBody PaymentDTO paymentRequest, HttpServletRequest request){
+    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentRequest, HttpServletRequest request){
         try {
             String paymentUrl = vnPayService.createPaymentUrl(paymentRequest, request);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .status(HttpStatus.OK)
-                    .message("Payment URL gennerated successfully.")
-                    .data(paymentUrl)
-                    .build());
-
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ResponseObject.builder()
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .message("Error generating payment URL: " + e.getMessage())
-                            .build()
-                    );
+            return ResponseEntity.ok(paymentUrl);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
