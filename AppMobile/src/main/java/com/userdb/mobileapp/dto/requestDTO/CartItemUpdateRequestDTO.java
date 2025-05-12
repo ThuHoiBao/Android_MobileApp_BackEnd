@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemUpdateRequestDTO {
+    @JsonProperty("cartItem_Id")
+    private int cartItemId;
     @JsonProperty("product_name")
     private String productName;
     @JsonProperty("color")

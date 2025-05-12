@@ -2,6 +2,7 @@ package com.userdb.mobileapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
 @Table(name = "address_delivery")
@@ -28,8 +29,8 @@ public class AddressDelivery {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(mappedBy = "addressDelivery")
-    private Order order;
+    @OneToMany(mappedBy = "addressDelivery")
+    private List<Order> orders;
 
     private Boolean status;
 }

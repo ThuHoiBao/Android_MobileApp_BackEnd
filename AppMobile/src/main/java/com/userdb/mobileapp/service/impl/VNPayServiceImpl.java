@@ -32,8 +32,9 @@ public class VNPayServiceImpl implements IVNPayService {
         String version = "2.1.0";
         String command = "pay";
         String orderType = "other";
-        long amount = paymentDto.getAmount() * 100; // Số tiền cần nhân với 100
+        long amount = paymentDto.getAmount(); // Số tiền cần nhân với 100
         String bankCode = paymentDto.getBankCode();
+        int orderId = paymentDto.getOrderId();
 
         String transactionReference = vnPayUtils.getRandomNumber(8); // Mã giao dịch
         String clientIpAddress = vnPayUtils.getIpAddress(httpRequest);
@@ -47,11 +48,12 @@ public class VNPayServiceImpl implements IVNPayService {
         params.put("vnp_Amount", String.valueOf(amount));
         params.put("vnp_CurrCode", "VND");
 
+
         if (bankCode != null && !bankCode.isEmpty()) {
             params.put("vnp_BankCode", bankCode);
         }
         params.put("vnp_TxnRef", transactionReference);
-        params.put("vnp_OrderInfo", "Thanh toan don hang:" + transactionReference);
+        params.put("vnp_OrderInfo", "Thanh toan don hang:" + orderId);
         params.put("vnp_OrderType", orderType);
 
         String locale = paymentDto.getLanguage();

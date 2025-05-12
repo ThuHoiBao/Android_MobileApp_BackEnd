@@ -10,6 +10,9 @@ import lombok.*;
 @Getter
 @Setter
 public class PaymentDTO {
+    @JsonProperty("order_id")
+    private int orderId;
+
     @JsonProperty("amount")
     private long amount; // Số tiền cần thanh toán
 

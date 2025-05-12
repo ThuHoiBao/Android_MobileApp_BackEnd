@@ -4,6 +4,8 @@ import com.userdb.mobileapp.dto.payment.PaymentDTO;
 import com.userdb.mobileapp.dto.payment.PaymentQueryDTO;
 import com.userdb.mobileapp.dto.payment.PaymentRefundDTO;
 import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
+import com.userdb.mobileapp.exception.DataNotFoundException;
+import com.userdb.mobileapp.service.impl.OrderServiceImpl;
 import com.userdb.mobileapp.service.impl.VNPayServiceImpl;
 import feign.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,18 +15,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/payments")
 public class PaymentController {
     private final VNPayServiceImpl vnPayService;
+    private final OrderServiceImpl orderService;
 
     @PostMapping("/create_payment_url")
     public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentRequest, HttpServletRequest request){
@@ -33,6 +34,29 @@ public class PaymentController {
             return ResponseEntity.ok(paymentUrl);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/vnpay/return")
+        public ResponseEntity<String> handleVnPayReturn(@RequestParam Map<String, String> allParams) throws DataNotFoundException {
+        String vnp_OrderInfo = allParams.get("vnp_OrderInfo");
+        String vnp_ResponseCode = allParams.get("vnp_ResponseCode");
+        String vnp_Amount = allParams.get("vnp_Amount");
+        String vnp_BankCode = allParams.get("vnp_BankCode");
+        String vnp_PayDate = allParams.get("vnp_CreateDate");
+
+
+        String orderInfoPrefix = "Thanh toan don hang:";
+        if(!vnp_OrderInfo.startsWith(orderInfoPrefix)){
+            return ResponseEntity.badRequest().body("Invalid order info format");
+        }
+        int orderId = Integer.parseInt(vnp_OrderInfo.substring(orderInfoPrefix.length()).trim());
+
+        if("00".equals(vnp_ResponseCode)){
+            orderService.updateOrderStatus(orderId, vnp_Amount, vnp_BankCode, vnp_PayDate);
+            return ResponseEntity.ok("Payment confirmed");
+        } else {
+            return ResponseEntity.ok("Payment failed or cancelled");
         }
     }
 

@@ -38,4 +38,7 @@ public interface AddressDeliveryRepository extends JpaRepository<AddressDelivery
     @Transactional
     @Query("UPDATE AddressDelivery a SET a.isDefault = :isDefault WHERE a.id = :addressId")
     void updateIsDefault(long addressId, boolean isDefault);
+
+    @Query("SELECT a FROM AddressDelivery a WHERE a.user.id = :userId AND a.status = true")
+    Optional<AddressDelivery> findActiveAddressByUserId(Long userId);
 }

@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                                     String.format("%s/users/update-password", apiPrefix),
                                     String.format("%s/payments/**", apiPrefix),
                                     String.format("%s/users/login-social", apiPrefix),
+                                    String.format("%s/payments/create_payment_url", apiPrefix),
                                     "/api/product/summary",
                                     "api/review/productName",
                                     "/api/cart/items",
@@ -63,7 +64,8 @@ public class WebSecurityConfig {
                                     "/api/address/update",
                                     "/api/address/setDefault",
                                     "/api/address/add",
-                                    "/api/cart/update-cart"
+                                    "/api/cart/update-cart",
+                                    "/api/orders/from-cart"
                             ).permitAll()
 
 //                            //Categories

@@ -1,11 +1,9 @@
 package com.userdb.mobileapp.controller;
 
 import com.userdb.mobileapp.dto.requestDTO.CreateOrderRequestDTO;
-import com.userdb.mobileapp.dto.responseDTO.AddressDeliveryResponseDTO;
-import com.userdb.mobileapp.dto.responseDTO.CreateOrderResponseDTO;
-import com.userdb.mobileapp.dto.responseDTO.OrderItemResponseDTO;
-import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
+import com.userdb.mobileapp.dto.responseDTO.*;
 import com.userdb.mobileapp.entity.AddressDelivery;
+import com.userdb.mobileapp.entity.Order;
 import com.userdb.mobileapp.repository.OrderRepository;
 import com.userdb.mobileapp.service.OrderItemService;
 import com.userdb.mobileapp.service.OrderService;
@@ -30,18 +28,13 @@ public class OrderController {
     }
 
     @PostMapping("/api/orders/from-cart")
-    public ResponseEntity<ResponseObject> createOrderFromCart(@RequestBody CreateOrderRequestDTO request) {
-        try {
-            orderService.createOrderFromCart(request);
-            return ResponseEntity.ok().body(ResponseObject.builder().status(HttpStatus.OK)
-                    .data(CreateOrderResponseDTO.fromCreateOrderRequestDTO(request))
-                    .message("Create Order Successfully!")
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseObject.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .data(null).message(e.getMessage())
-                    .build());
+    public ResponseEntity<OrderResponseDTO> createOrderFromCart(@RequestBody CreateOrderRequestDTO request) {
+        try{
+            Order order =  orderService.createOrderFromCart(request);
+            OrderResponseDTO orderResponseDTO = OrderResponseDTO.fromOrder(order);
+            return ResponseEntity.ok(orderResponseDTO);
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

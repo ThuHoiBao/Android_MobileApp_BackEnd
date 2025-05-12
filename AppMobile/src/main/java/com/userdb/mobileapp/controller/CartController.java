@@ -36,22 +36,32 @@ public class CartController {
         }
     }
 
+    @PutMapping("/update/cartItem")
+    public ResponseEntity<CartItemDTO> updateCartItemId(@RequestParam int cartItemId,@RequestBody CartItemUpdateRequestDTO cartItemUpdateRequestDTO){
+        try{
+            CartItem cartItem = cartService.updateProductCartItem(cartItemId, cartItemUpdateRequestDTO);
+
+        } catch (DataNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     @PutMapping("/update")
-    public ResponseEntity<List<CartItemUpdateResponseDTO>> updateCartItems(
-            @RequestParam("userId") long userId,
+    public ResponseEntity<List<CartItemUpdateResultDTO>> updateCartItems(
             @RequestBody List<CartItemUpdateRequestDTO> updates) throws DataNotFoundException {
+        List<CartItemUpdateResultDTO> cartItemList = cartService.updateProductInCart(updates);
+        return ResponseEntity.ok(cartItemList);
+    }
 
-        List<CartItem> cartItemList = cartService.updateProductInCart(updates, userId);
-
-        // Map request DTOs to response DTOs (assuming updated values are same as request)
-        List<CartItemUpdateResponseDTO> responseDTOs = updates.stream()
-                .map(req -> new CartItemUpdateResponseDTO(
-                        req.getProductName(),
-                        req.getColor(),
-                        req.getNewQuantity()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(responseDTOs);
+    @DeleteMapping("/item")
+    public ResponseEntity<String> removeCartItem(@RequestParam int cartItemId) {
+        try {
+            cartService.removeCartItem(cartItemId);
+            return ResponseEntity.ok("Cart item deleted successfully");
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping("/items")
@@ -66,16 +76,6 @@ public class CartController {
             List<CartItemDTO> cartItems = cartService.getCartItemsByUserId(userId);
             return ResponseEntity.ok(cartItems);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/item")
-    public ResponseEntity<String> removeCartItem(@RequestParam long userId, @RequestParam int cartItemId) {
-        try {
-            cartService.removeCartItem(userId, cartItemId);
-            return ResponseEntity.ok("Cart item deleted successfully");
-        } catch (DataNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

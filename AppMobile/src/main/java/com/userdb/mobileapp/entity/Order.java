@@ -34,8 +34,8 @@ public class Order {
     private Payment payment;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_delivery_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "address_delivery_id")
     private AddressDelivery addressDelivery;
 
     @Enumerated(EnumType.STRING)

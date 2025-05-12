@@ -3,18 +3,14 @@ package com.userdb.mobileapp.entity;
 
 import com.userdb.mobileapp.enums.PaymentMethod;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Date;
+import lombok.*;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +22,8 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
-    private double amount;
-    private Date paymentDate;
+    private long amount;
+    private String paymentDate;
     private boolean status;
     private String momoBillId;
 }

@@ -71,6 +71,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/payments**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payments**", apiPrefix), "POST"),
 
+
+
                 //Danh nhap social
                 Pair.of(String.format("%s/users/login-social", apiPrefix), "POST"),
                 Pair.of("/api/product/summary", "GET"),
@@ -85,7 +87,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/address/update", "PUT"),
                 Pair.of("/api/address/setDefault", "PUT"),
                 Pair.of("/api/address/add", "POST"),
-                Pair.of("/api/cart/update-cart", "POST")
+                Pair.of("/api/cart/update-cart", "POST"),
+                Pair.of("/api/orders/from-cart", "POST")
         );
 
 
