@@ -70,7 +70,8 @@ public class WebSecurityConfig {
                                     "/api/address/update",
                                     "/api/address/setDefault",
                                     "/api/address/add",
-                                    "/api/cart/update-cart"
+                                    "/api/cart/update-cart",
+                                    "/api/categories/**"
 
                             ).permitAll()
 
