@@ -17,5 +17,7 @@ public class OrderItemResponseDTO {
     private String orderStatus;
     private String imageUrl;
     private Date orderDate;
-
+    private String fullName;
+    private String phoneNumber;
+    private String address;
 }

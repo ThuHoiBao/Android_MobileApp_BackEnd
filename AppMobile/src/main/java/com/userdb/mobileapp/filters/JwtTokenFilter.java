@@ -85,7 +85,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/orders/\\d+/[a-zA-Z]+", "GET"), // NEW
                 Pair.of("/api/reviews/\\d+", "GET"),
                 Pair.of("/api/review/\\d+", "GET"),
-                Pair.of("/api/review", "POST")
+                Pair.of("/api/review", "POST"),
+                Pair.of("/api/v1/users/profile/\\d+", "GET"),
+                Pair.of("/api/v1/users/profile/update", "POST")
         );
 
 

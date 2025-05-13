@@ -71,7 +71,9 @@ public class WebSecurityConfig {
                                     "/api/address/setDefault",
                                     "/api/address/add",
                                     "/api/cart/update-cart",
-                                    "/api/categories/**"
+                                    "/api/categories/**",
+                                    "/api/v1/users/profile/**",
+                                    "/api/v1/users/profile/update/**"
 
                             ).permitAll()
 
