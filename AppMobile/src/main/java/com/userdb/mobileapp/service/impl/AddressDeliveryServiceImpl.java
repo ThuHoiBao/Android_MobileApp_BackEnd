@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -107,6 +108,16 @@ public class AddressDeliveryServiceImpl implements IAddressDeliveryService {
                 .orElseThrow(() -> new RuntimeException("No available addresses to set as default"));
 
         defaultAddress.setIsDefault(false);
+
+
+        //Cap nhat lai address gan nhat la mac dinh
+        Optional<AddressDelivery> addressDelivery = addressDeliveryRepository.findActiveAddressByUserId(userId);
+        if (addressDelivery.isPresent()) {
+            AddressDelivery delivery = addressDelivery.get();
+            delivery.setIsDefault(true);
+            addressDeliveryRepository.save(delivery);
+        }
+
         addressDeliveryRepository.save(defaultAddress);
     }
 

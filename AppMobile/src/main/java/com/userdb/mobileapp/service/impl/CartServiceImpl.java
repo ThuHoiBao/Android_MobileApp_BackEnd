@@ -3,6 +3,7 @@ package com.userdb.mobileapp.service.impl;
 import com.userdb.mobileapp.dto.requestDTO.AddProductToCartRequestDTO;
 import com.userdb.mobileapp.dto.requestDTO.CartItemUpdateRequestDTO;
 import com.userdb.mobileapp.dto.responseDTO.CartItemDTO;
+import com.userdb.mobileapp.dto.responseDTO.CartItemUpdateResultDTO;
 import com.userdb.mobileapp.entity.*;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.CartItemRepository;
@@ -59,33 +60,51 @@ public class CartServiceImpl implements ICart {
     }
 
     @Override
-    public List<CartItem> updateProductInCart(List<CartItemUpdateRequestDTO> updates, long userId) throws DataNotFoundException {
-            List<CartItem> cartItemList = new ArrayList<>();
-        Cart cart = cartRepository.findByUser_Id(userId)
-                .orElseThrow(() -> new DataNotFoundException("Cart not found"));
+    public List<CartItemUpdateResultDTO> updateProductInCart(List<CartItemUpdateRequestDTO> updates) throws DataNotFoundException {
+        List<CartItemUpdateResultDTO> resultList = new ArrayList<>();
+        List<CartItem> itemsToSave = new ArrayList<>();
+
         for (CartItemUpdateRequestDTO update : updates) {
             Product product = productRepository
                     .findTopByProductNameAndColor(update.getProductName(), update.getColor())
                     .orElseThrow(() -> new DataNotFoundException("Product is not found"));
 
-            CartItem existingItem = cart.getCardItems().stream()
-                    .filter(item -> item.getProduct().getProductName().equals(product.getProductName()) &&
-                            item.getProduct().getColor().equals(product.getColor()))
-                    .findFirst()
-                    .orElse(null);
-            if (existingItem != null) {
-                cartItemList.add(existingItem);
-                if(update.getNewQuantity() <= 0){
-                    cartItemRepository.delete(existingItem);
+            CartItem existingItem = cartItemRepository.findById(update.getCartItemId())
+                    .orElseThrow(() -> new DataNotFoundException("CartItem is not found"));
+
+            List<Product> productsWithSameNameAndColor = productRepository.findByProductNameAndColorAndStatusTrue(
+                    product.getProductName(), product.getColor());
+            int availableStock = productsWithSameNameAndColor.size();
+            int requestedQuantity  = update.getNewQuantity();
+            int quantityToSet = Math.min(requestedQuantity, availableStock);
+
+            CartItemUpdateResultDTO result = new CartItemUpdateResultDTO();
+
+            if (availableStock == 0 || quantityToSet == 0) {
+//                cartItemRepository.delete(existingItem);
+                result.setCartItemId(existingItem.getCartItemId());
+//                result.setUpdatedQuantity(0);
+                result.setOutOfStock(true);
+                result.setMessage("Hết hàng");
+            } else {
+                existingItem.setQuantity(quantityToSet);
+                itemsToSave.add(existingItem);
+                result.setCartItemId(existingItem.getCartItemId());
+                result.setUpdatedQuantity(quantityToSet);
+                result.setOutOfStock(false);
+                if (quantityToSet < requestedQuantity) {
+                    result.setMessage("Không đủ hàng, đã cập nhật còn " + quantityToSet);
                 } else {
-                    existingItem.setQuantity(update.getNewQuantity());
-                    cartItemRepository.save(existingItem);
+                    result.setMessage("Cập nhật thành công");
                 }
-                } else {
-                throw new DataNotFoundException("Product is not found in the cart");
             }
+            resultList.add(result);
         }
-        return cartItemList;
+
+        if(!itemsToSave.isEmpty()){
+            cartItemRepository.saveAll(itemsToSave);
+        }
+        return resultList;
     }
 
     @Override
@@ -123,10 +142,25 @@ public class CartServiceImpl implements ICart {
     }
 
     @Override
-    public void removeCartItem(long userId, int cartItemId) throws DataNotFoundException {
-        CartItem cartItem = cartItemRepository.findByCartItemIdAndCart_User_Id(cartItemId, userId)
-                .orElseThrow(() -> new DataNotFoundException("Cart item not found or does not belong to user"));
+    public void removeCartItem(int cartItemId) throws DataNotFoundException {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new DataNotFoundException("Cart item not found"));
 
         cartItemRepository.delete(cartItem);
+    }
+
+    @Override
+    public CartItem updateProductCartItem(int cartItemId, CartItemUpdateRequestDTO updates) throws DataNotFoundException {
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() -> new DataNotFoundException("CartItem is not found"));
+        //Lay so luong hien co trong kho dua vao so luong va mau sac voi trang thai con hang
+        List<Product> productsWithSameNameAndColor = productRepository.findByProductNameAndColorAndStatusTrue(
+                updates.getProductName(), updates.getColor());
+
+        int count = productsWithSameNameAndColor.size(); // Dem so luong san pham
+        if(updates.getNewQuantity() > count){ // So luong can dat lon hon so luong hien co trong kho
+            cartItem.setQuantity(count);
+        }
+
+        return cartItem;
     }
 }

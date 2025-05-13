@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                                     String.format("%s/users/update-password", apiPrefix),
                                     String.format("%s/payments/**", apiPrefix),
                                     String.format("%s/users/login-social", apiPrefix),
+                                    String.format("%s/payments/create_payment_url", apiPrefix),
                                     "/api/product/summary",
 
                                     "/api/products/**",
@@ -71,6 +72,7 @@ public class WebSecurityConfig {
                                     "/api/address/setDefault",
                                     "/api/address/add",
                                     "/api/cart/update-cart",
+                                    "/api/orders/from-cart",
                                     "/api/categories/**",
                                     "/api/v1/users/profile/**",
                                     "/api/v1/users/profile/update/**"

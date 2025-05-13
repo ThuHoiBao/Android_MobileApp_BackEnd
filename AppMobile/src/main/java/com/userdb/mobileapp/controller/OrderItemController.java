@@ -28,7 +28,4 @@ public class OrderItemController {
                                                                          @PathVariable("orderStatus") String orderStatus) {
         return orderItemServiceService.getOrderItemsByCustomerIdAndStatus(customerId, orderStatus);
     }
-
-
-
 }

@@ -16,5 +16,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
             "AND oi.product.productName = :productName " +
             "AND oi.product.color = :color")
     List<OrderItem> findByOrderIdAndProductNameAndColor(int orderId, String productName, String color);
+
+    List<OrderItem> findAllByOrderOrderId(int orderId);
 }
 

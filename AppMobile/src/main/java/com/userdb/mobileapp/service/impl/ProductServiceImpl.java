@@ -91,51 +91,48 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductSummaryDTO getProductSummary(String productName) {
+        // Fetch all products matching the product name
         List<Product> products = productRepository.findAllByProductName(productName);
+        System.out.println("123: " + products.size());
 
         if (products.isEmpty()) {
             throw new RuntimeException("Không tìm thấy sản phẩm với tên: " + productName);
         }
 
-        // Tập hợp các biến thể: không trùng price + image
-        List<ProductVariantDTO> variants = new ArrayList<>();
+        // Map to store the variants by color
         Map<String, ProductVariantDTO> variantMap = new HashMap<>();
 
         for (Product p : products) {
-            String color = p.getColor(); // Giả định Product có trường `color`
+            System.out.println(p.getProductName() + " " + p.getColor() + " " + p.isStatus());
+            String color = p.getColor(); // Assuming Product has a field `color`
             if (color == null) continue;
 
             if (p.getImageProducts() != null && !p.getImageProducts().isEmpty()) {
-                String imageUrl = p.getImageProducts().get(0).getImageProduct();
+                String imageUrl = p.getImageProducts().get(0).getImageProduct(); // Get the first image URL
 
-                // Nếu chưa có biến thể màu này, tạo mới
+                // Check if the color variant already exists in the map
                 if (!variantMap.containsKey(color)) {
+                    // If not, create a new variant DTO with the initial stock value
                     variantMap.put(color, new ProductVariantDTO(color, p.getPrice(), imageUrl, 0));
                 }
 
-                // Nếu sản phẩm chưa bán (status = true), tăng số lượng tồn kho
+                // Get the existing ProductVariantDTO for this color
+                ProductVariantDTO dto = variantMap.get(color);
+
+                // If the product is available (status = true), increment stock
                 if (p.isStatus()) {
-                    ProductVariantDTO dto = variantMap.get(color);
                     dto.setStock(dto.getStock() + 1);
                 }
             }
         }
-//        for (Map.Entry<String, ProductVariantDTO> entry : variantMap.entrySet()) {
-//            String color = entry.getKey();
-//            ProductVariantDTO variant = entry.getValue();
-//
-//            System.out.println("Color: " + color);
-//            System.out.println("  Price: " + variant.getPrice());
-//            System.out.println("  Image URL: " + variant.getImageUrl());
-//            System.out.println("  Stock: " + variant.getStock());
-//            System.out.println("------------------------------");
-//        }
 
-        // Đếm số sản phẩm đã bán
+        // Count how many products have been sold (status = false)
         int soldCount = (int) products.stream().filter(p -> !p.isStatus()).count();
 
-        //Đếm sản phẩm chưa bán theo màu sắc
+        // Prepare the list of all variants
+        List<ProductVariantDTO> variantList = new ArrayList<>(variantMap.values());
 
-        return new ProductSummaryDTO(productName, new ArrayList<>(variantMap.values()), soldCount);
+        // Return the product summary with variants and sold count
+        return new ProductSummaryDTO(productName, variantList, soldCount);
     }
 }
