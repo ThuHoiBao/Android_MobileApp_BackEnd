@@ -8,12 +8,10 @@ import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.repository.AddressDeliveryRepository;
 import com.userdb.mobileapp.repository.UserRepository;
 import com.userdb.mobileapp.service.IAddressDeliveryService;
-import jakarta.mail.Address;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
