@@ -53,6 +53,13 @@ public class WebSecurityConfig {
                                     String.format("%s/users/login-social", apiPrefix),
                                     String.format("%s/payments/create_payment_url", apiPrefix),
                                     "/api/product/summary",
+
+                                    "/api/products/**",
+                                    "/api/orders/**",
+                                    "/api/reviews/**",
+                                    "/api/review/**",
+
+
                                     "api/review/productName",
                                     "/api/cart/items",
                                     "/api/cart/update",
@@ -65,7 +72,11 @@ public class WebSecurityConfig {
                                     "/api/address/setDefault",
                                     "/api/address/add",
                                     "/api/cart/update-cart",
-                                    "/api/orders/from-cart"
+                                    "/api/orders/from-cart",
+                                    "/api/categories/**",
+                                    "/api/v1/users/profile/**",
+                                    "/api/v1/users/profile/update/**"
+
                             ).permitAll()
 
 //                            //Categories

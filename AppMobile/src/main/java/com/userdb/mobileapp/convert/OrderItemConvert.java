@@ -20,8 +20,10 @@ public class OrderItemConvert {
         dto.setOrderStatus(orderItem.getOrder().getOrderStatus().name());
         dto.setOrderDate(orderItem.getOrder().getOrderDate());
         dto.setQuantity(orderItem.getQuantity());
-        dto.setPrice(orderItem.getPrice()); // 💥 Quan trọng!
-
+        dto.setPrice(orderItem.getPrice());
+        dto.setAddress(orderItem.getOrder().getAddressDelivery().getAddress());// 💥 Quan trọng!
+        dto.setFullName(orderItem.getOrder().getAddressDelivery().getFullName());
+        dto.setPhoneNumber(orderItem.getOrder().getAddressDelivery().getPhoneNumber());
         // Gán ảnh nếu có
         if (orderItem.getProduct().getImageProducts() != null &&
                 !orderItem.getProduct().getImageProducts().isEmpty()) {

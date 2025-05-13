@@ -3,10 +3,13 @@ package com.userdb.mobileapp.service;
 
 import com.userdb.mobileapp.dto.requestDTO.SocialLoginDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserDTO;
+import com.userdb.mobileapp.dto.requestDTO.UserRequestDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserUpdatePasswordDTO;
+import com.userdb.mobileapp.dto.responseDTO.UserResponseDTO;
 import com.userdb.mobileapp.entity.User;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.exception.InvalidParamException;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface IUserService {
     User createUser(UserDTO userDTO) throws Exception;
@@ -21,4 +24,6 @@ public interface IUserService {
     boolean updatePassword(UserUpdatePasswordDTO userUpdatePasswordDTO);
     String loginSocial(SocialLoginDTO socialLoginDTO) throws Exception;
     User getUserDetailsFromToken(String token) throws  Exception;
+    UserResponseDTO getUserProfile(int userId);
+    boolean updateUserProfile( UserRequestDTO userRequestDTO, MultipartFile imgProfile);
 }
