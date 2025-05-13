@@ -1,14 +1,13 @@
 package com.userdb.mobileapp.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.userdb.mobileapp.component.JwtTokenUtil;
 import com.userdb.mobileapp.component.LocalizationUtils;
-import com.userdb.mobileapp.dto.requestDTO.SocialLoginDTO;
-import com.userdb.mobileapp.dto.requestDTO.UserDTO;
-import com.userdb.mobileapp.dto.requestDTO.UserLoginDTO;
-import com.userdb.mobileapp.dto.requestDTO.UserUpdatePasswordDTO;
+import com.userdb.mobileapp.dto.requestDTO.*;
 import com.userdb.mobileapp.dto.responseDTO.ResponseObject;
 import com.userdb.mobileapp.dto.responseDTO.TokenResponse;
 import com.userdb.mobileapp.dto.responseDTO.UserResponse;
+import com.userdb.mobileapp.dto.responseDTO.UserResponseDTO;
 import com.userdb.mobileapp.entity.User;
 import com.userdb.mobileapp.exception.DataNotFoundException;
 import com.userdb.mobileapp.exception.InvalidParamException;
@@ -26,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -195,4 +195,38 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<UserResponseDTO> getUserProfile(@PathVariable("userId") int userId) {
+        try {
+            // Lấy thông tin người dùng từ service
+            UserResponseDTO userResponseDTO = userService.getUserProfile(userId);
+            //
+            return ResponseEntity.ok(userResponseDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null); // Nếu không tìm thấy người dùng, trả về lỗi 404
+        }
+    }
+    @PostMapping(value = "/profile/update", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> uploadUserProfile(
+            @RequestPart("user") String userJson,
+            @RequestPart(value = "imgProfile", required = false) MultipartFile imgProfile
+    ) {
+        try {
+            // Convert JSON String to DTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            UserRequestDTO userRequestDTO = objectMapper.readValue(userJson, UserRequestDTO.class);
+            boolean ans = userService.updateUserProfile(userRequestDTO,imgProfile);
+            if(ans){
+                return ResponseEntity.ok("Profile updated successfully!");
+            }
+            else {
+                return ResponseEntity.badRequest().body("Profile update failed!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lỗi xử lý đánh giá: " + e.getMessage());
+        }
+    }
+
 }

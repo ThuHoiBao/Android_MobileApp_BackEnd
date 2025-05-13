@@ -5,7 +5,9 @@ import com.userdb.mobileapp.component.JwtTokenUtil;
 import com.userdb.mobileapp.component.LocalizationUtils;
 import com.userdb.mobileapp.dto.requestDTO.SocialLoginDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserDTO;
+import com.userdb.mobileapp.dto.requestDTO.UserRequestDTO;
 import com.userdb.mobileapp.dto.requestDTO.UserUpdatePasswordDTO;
+import com.userdb.mobileapp.dto.responseDTO.UserResponseDTO;
 import com.userdb.mobileapp.entity.Cart;
 import com.userdb.mobileapp.entity.Role;
 import com.userdb.mobileapp.entity.Token;
@@ -25,6 +27,7 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,7 +35,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
@@ -50,6 +55,9 @@ public class UserServiceImpl implements IUserService {
     private final TokenRepository tokenRepository;
     private final LocalizationUtils localizationUtils;
     private final CartRepository cartRepository;
+
+    @Autowired
+    private GoogleCloudStorageServiceImpl googleCloudStorageService;
 
     @Value("${spring.security.oauth2.client.registration.google.client_id}")
     private String googleClientId;
@@ -373,4 +381,63 @@ public class UserServiceImpl implements IUserService {
         }
         return user.orElseThrow(() -> new Exception("User not found"));
     }
+
+    @Override
+    public UserResponseDTO getUserProfile(int userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        // Kiểm tra xem người dùng có tồn tại hay không
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDTO userResponseDTO = new UserResponseDTO();
+
+            // Gán dữ liệu vào UserResponseDTO
+            userResponseDTO.setFullName(user.getFullName());
+            userResponseDTO.setPhoneNumber(user.getPhoneNumber());
+            userResponseDTO.setEmail(user.getEmail());
+            userResponseDTO.setDateOfBirth(user.getDateOfBirth());
+            userResponseDTO.setProfileImage(user.getProfileImage());
+
+            return userResponseDTO;
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Override
+    public boolean updateUserProfile(UserRequestDTO userRequestDTO, MultipartFile imgProfile) {
+        Optional<User> optionalUser = userRepository.findById(userRequestDTO.getUserId());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            // Cập nhật thông tin người dùng
+            user.setFullName(userRequestDTO.getFullName());
+            // Chuyển đổi từ java.util.Date sang java.sql.Date
+            java.sql.Date sqlDate = new java.sql.Date(userRequestDTO.getDateOfBirth().getTime());
+            user.setDateOfBirth(sqlDate);
+
+            // Cập nhật ảnh đại diện nếu có
+            if (imgProfile != null && !imgProfile.isEmpty()) {
+                try {
+                    String uniqueName = "user_" +userRequestDTO.getUserId()+ "_" +  imgProfile.getOriginalFilename();
+                    // Lưu ảnh lên Google Cloud Storage và nhận URL ảnh
+                    String imageUrl = googleCloudStorageService.uploadImageToGoogleCloudStorage(uniqueName, imgProfile);  // Giả sử bạn đã có phương thức lưu ảnh
+                    user.setProfileImage(imageUrl);  // Lưu tên ảnh vào database
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            // Lưu lại thông tin người dùng đã được cập nhật
+            userRepository.save(user);
+            return true;
+        } else {
+            return false;  // Không tìm thấy người dùng
+        }
+    }
+
+    // Phương thức lưu ảnh đại diện
+
+
 }

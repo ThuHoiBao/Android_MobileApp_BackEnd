@@ -67,25 +67,27 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/verify-email", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/verify-phone", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/update-password", apiPrefix), "PUT"),
-
+                Pair.of("/api/products" , "GET"),
+                Pair.of("/api/orders/\\d+", "GET"),
+                Pair.of("/api/categories/\\d+", "GET"),
+                Pair.of("/api/categories", "GET"),
                 Pair.of(String.format("%s/payments**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payments**", apiPrefix), "POST"),
 
                 //Danh nhap social
                 Pair.of(String.format("%s/users/login-social", apiPrefix), "POST"),
+
                 Pair.of("/api/product/summary", "GET"),
-                Pair.of("/api/review/productName", "GET"),
-                Pair.of("/api/cart/add", "POST"),
-                Pair.of("/api/cart/items", "GET"),
-                Pair.of("/api/cart/update", "PUT"),
-                Pair.of("/api/address/default", "GET"),
-                Pair.of("/api/address/delete", "DELETE"),
-                Pair.of("/api/cart/item", "DELETE"),
-                Pair.of("/api/address/items", "GET"),
-                Pair.of("/api/address/update", "PUT"),
-                Pair.of("/api/address/setDefault", "PUT"),
-                Pair.of("/api/address/add", "POST"),
-                Pair.of("/api/cart/update-cart", "POST")
+
+
+
+
+                Pair.of("/api/orders/\\d+/[a-zA-Z]+", "GET"), // NEW
+                Pair.of("/api/reviews/\\d+", "GET"),
+                Pair.of("/api/review/\\d+", "GET"),
+                Pair.of("/api/review", "POST"),
+                Pair.of("/api/v1/users/profile/\\d+", "GET"),
+                Pair.of("/api/v1/users/profile/update", "POST")
         );
 
 
