@@ -125,4 +125,34 @@ public class OrderServiceImpl implements OrderService {
 
         return order;
     }
+
+
+    @Override
+    public List<OrderItemDTO> loadOrderId(int orderId) {
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrderOrderId(orderId);
+        Map<String, Integer> productMap = new HashMap<>();
+
+        for(OrderItem orderItem : orderItems){
+            Product product = orderItem.getProduct();
+            String productName = product.getProductName();
+            String color = product.getColor();
+            double price = product.getPrice();
+            String productImage =  product.getImageProducts().isEmpty() ? null : "https://storage.googleapis.com/bucket_mobileapp/images/" + product.getImageProducts().get(0).getImageProduct();
+
+            String key = productName + " - " + color + " - " + price + " - " + productImage;
+            productMap.put(key, productMap.getOrDefault(key, 0) + 1);
+        }
+
+        return productMap.entrySet().stream()
+                .map(entry -> {
+                    String[] keyParts = entry.getKey().split(" - ");
+                    String productName = keyParts[0];
+                    String color = keyParts[1];
+                    double price = Double.parseDouble(keyParts[2]);
+                    String productImage = keyParts[3];
+                    int count = entry.getValue();
+                    return new OrderItemDTO(productName,productImage , color, price, count);
+                }).collect(Collectors.toList());
+    }
+
 }
