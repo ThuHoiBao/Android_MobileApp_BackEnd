@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
             if (color == null) continue;
 
             if (p.getImageProducts() != null && !p.getImageProducts().isEmpty()) {
-                String imageUrl = "https://storage.googleapis.com/bucket_mobileapp/images/" + p.getImageProducts().get(0).getImageProduct(); // Get the first image URL
+                String imageUrl = p.getImageProducts().get(0).getImageProduct(); // Get the first image URL
 
                 // Check if the color variant already exists in the map
                 if (!variantMap.containsKey(color)) {
