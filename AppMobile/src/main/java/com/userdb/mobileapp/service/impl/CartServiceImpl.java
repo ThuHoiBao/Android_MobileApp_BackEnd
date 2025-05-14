@@ -95,7 +95,7 @@ public class CartServiceImpl implements ICart {
                 if (quantityToSet < requestedQuantity) {
                     result.setMessage("Không đủ hàng, đã cập nhật còn " + quantityToSet);
                 } else {
-                    result.setMessage("Cập nhật thành công");
+//                    result.setMessage("Cập nhật thành công");
                 }
             }
             resultList.add(result);
@@ -125,7 +125,7 @@ public class CartServiceImpl implements ICart {
                 System.out.println(countMap);
 
                 // Bước 3: Lấy thông tin CartItem từ id và cập nhật số lượng trong giỏ hàng nếu cần
-                String productImage = product.getImageProducts().isEmpty() ? null : product.getImageProducts().get(0).getImageProduct();
+                String productImage =  product.getImageProducts().isEmpty() ? null : "https://storage.googleapis.com/bucket_mobileapp/images/" + product.getImageProducts().get(0).getImageProduct();
                 if(countMap == 0){ // truong hop het hang
                     outOfStockItems.add(new CartItemDTO(cartItem.getCartItemId(), product.getProductName(), product.getColor(), product.getPrice(), cartItem.getQuantity(), productImage, true));
                 }
