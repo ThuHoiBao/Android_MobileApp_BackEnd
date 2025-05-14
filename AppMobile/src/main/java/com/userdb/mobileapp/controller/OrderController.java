@@ -7,7 +7,9 @@ import com.userdb.mobileapp.entity.Order;
 import com.userdb.mobileapp.repository.OrderRepository;
 import com.userdb.mobileapp.service.OrderItemService;
 import com.userdb.mobileapp.service.OrderService;
+import feign.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,15 @@ public class OrderController {
             OrderResponseDTO orderResponseDTO = OrderResponseDTO.fromOrder(order);
             return ResponseEntity.ok(orderResponseDTO);
         } catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping("/api/orders/items")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItems(@RequestParam int orderId){
+        try{
+            return ResponseEntity.ok(orderService.loadOrderId(orderId));
+        }catch (Exception e){
             return ResponseEntity.badRequest().body(null);
         }
     }
