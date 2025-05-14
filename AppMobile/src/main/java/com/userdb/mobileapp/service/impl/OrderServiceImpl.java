@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderItemDTO> loadOrderId(int orderId) {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderOrderId(orderId);
         Map<String, Integer> productMap = new HashMap<>();
-
+//dedee
         for(OrderItem orderItem : orderItems){
             Product product = orderItem.getProduct();
             String productName = product.getProductName();
