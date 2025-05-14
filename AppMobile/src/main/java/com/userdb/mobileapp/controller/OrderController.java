@@ -37,4 +37,13 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @GetMapping("/api/orders/items")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItems(@RequestParam int orderId){
+        try{
+            return ResponseEntity.ok(orderService.loadOrderId(orderId));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }
