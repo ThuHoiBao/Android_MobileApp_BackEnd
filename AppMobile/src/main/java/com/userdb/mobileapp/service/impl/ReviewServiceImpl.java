@@ -144,7 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
             // Chuyển đổi LocalDate thành chuỗi với định dạng yyyy-MM-dd
             String formattedDate = reviewDate.toString(); // "yyyy-MM-dd"
             List<String> imageReviews = review.getImageReviews().stream()
-                    .map(ImageReview::getImageReview)
+                    .map(imageReview -> "https://storage.googleapis.com/bucket_mobileapp/images/" + imageReview.getImageReview())
                     .collect(Collectors.toList());
             // Tạo ReviewDTO và thêm vào danh sách
             reviewDTOs.add(new ReviewDTO(
