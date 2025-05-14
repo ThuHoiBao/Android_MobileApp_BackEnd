@@ -75,7 +75,9 @@ public class WebSecurityConfig {
                                     "/api/orders/from-cart",
                                     "/api/categories/**",
                                     "/api/v1/users/profile/**",
-                                    "/api/v1/users/profile/update/**"
+                                    "/api/v1/users/profile/update/**",
+                                    "/api/orders/items",
+                                    "/api/orders/cancel/**"
 
                             ).permitAll()
 
