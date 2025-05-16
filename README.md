@@ -84,6 +84,6 @@ Nếu bạn muốn đóng góp vào dự án, vui lòng thực hiện các bư�
 - Thành viên 1:
  +  Email: thoai12309@gmail.com
  + GitHub: https://github.com/vuongducthoai
--Thành viên 2:
+- Thành viên 2:
  + Email: trananhthu270904@gmail.com
  + Github: https://github.com/ThuHoiBao
